@@ -1,0 +1,10 @@
+# YOLOv5 Custom Dataset Configuration for 3-Classes (Person, Fist, Palm)
+
+# 데이터셋 루트 및 상대 경로 정의
+path: /home/mijung/canlab/gesture_final/dataset
+train: images/train
+val: images/val
+
+# 클래스 정보 정의 (0: person, 1: fist, 2: palm)
+nc: 6 
+names: ['fist', 'like', 'no_gesture', 'ok', 'palm', 'person']

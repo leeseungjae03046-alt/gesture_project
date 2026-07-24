@@ -1,0 +1,17 @@
+# Arduino UNO Q (ARM64) YOLOv5 Gesture Project Requirements
+torch>=2.0.0
+torchvision>=0.15.0
+opencv-python-headless>=4.5.0
+onnxruntime>=1.15.0
+flask>=3.0.0
+numpy>=1.21.0
+pandas>=1.1.4
+matplotlib>=3.2.2
+seaborn>=0.11.0
+scipy>=1.4.1
+Pillow>=7.1.2
+PyYAML>=5.3.1
+requests>=2.23.0
+tqdm>=4.41.0
+thop
+packaging
