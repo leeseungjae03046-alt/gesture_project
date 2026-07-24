@@ -6,7 +6,22 @@
 
 ---
 
-## 📜 1. 오늘 완료한 핵심 개발 & 트러블슈팅 이력 (2026-07-24)
+## 🛠️ 1. 가상환경 원클릭 재복구 명령어 (`requirements.txt`)
+
+새 보드나 새로운 디바이스에 프로젝트를 복제한 후 가상환경을 10초 만에 복구하는 방법입니다:
+
+```bash
+cd /home/arduino/main/canlab/gesture_project
+python3 -m venv .venv
+source .venv/bin/activate
+
+# requirements.txt 기반 필요 의존성 자동 복구
+pip install -r requirements.txt
+```
+
+---
+
+## 📜 2. 오늘 완료한 핵심 개발 & 트러블슈팅 이력 (2026-07-24)
 
 ### 🚨 주요 해결 내역
 1. **임시 디렉터리 디스크 용량 부족 (`[Errno 28] No space left on device`)**:
@@ -25,15 +40,7 @@
 
 ---
 
-## 🛠️ 2. 파이썬 가상환경 및 명령어 정리
-
-### 🐍 가상환경 활성화
-```bash
-cd ~/main/canlab/gesture_project
-source .venv/bin/activate
-```
-
-### 🚀 추천 실행 명령어 모음
+## 🚀 3. 추천 실행 명령어 모음
 
 #### [방법 1] 퀄컴 Adreno 702 GPU + ONNX 가속 실행 (추천 ⭐)
 ```bash
@@ -61,7 +68,7 @@ SOURCE_URL='http://192.168.45.84:5000/video' python3 web_detect.py
 
 ---
 
-## 🔋 3. 하드웨어 전원 및 카메라 연결 표준 가이드
+## 🔋 4. 하드웨어 전원 및 카메라 연결 표준 가이드
 
 1. **전원 공급 구성 (PD IN 전원 필수)**
    * `PD 100W IN` 패스스루 포트가 포함된 C타입 멀티허브 (ipTIME UC305HDMI PLUS / DCH-H301) 사용.
@@ -72,7 +79,7 @@ SOURCE_URL='http://192.168.45.84:5000/video' python3 web_detect.py
 
 ---
 
-## 🎯 4. 향후 작업 로드맵 (Next Steps Roadmap)
+## 🎯 5. 향후 작업 로드맵 (Next Steps Roadmap)
 
 1. **[1단계] PD 멀티허브 & Arducam 카메라 장착 테스트**
    * 택배 도착 시 Arducam 카메라 꽂고 퀄컴 GPU 가속 모델(`best.onnx + --dnn --source 0`) 기동 확인.

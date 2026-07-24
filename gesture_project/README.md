@@ -14,6 +14,22 @@
 
 ---
 
+## 🛠️ 가상환경 생성 및 재복구 가이드 (Virtualenv Recovery)
+
+새 보드나 다른 컴퓨터에 저장소를 내려받은 후 10초 만에 동일한 개발 환경을 복구하는 방법입니다:
+
+```bash
+# 1. 가상환경 생성 및 활성화
+cd ~/main/canlab/gesture_project
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. requirements.txt 원클릭 패키지 자동 복구
+pip install -r requirements.txt
+```
+
+---
+
 ## 📝 오늘 완료한 작업 내역 (2026-07-24 작업 기록)
 
 ### 1. ⚙️ 파이썬 3.13 가상환경 구축 및 의존성 완벽 정합
