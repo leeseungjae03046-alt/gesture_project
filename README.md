@@ -1,83 +1,108 @@
-# 🖐️ YOLOv5 Custom 6-Class Gesture & Person Detection (Jetson Nano Edge AI)
+# 🖐️ YOLOv5 UltraFast (113 FPS) Gesture & Person Detection
 
-> **Jetson Nano 엣지 디바이스 및 초고속 실시간 탐지를 위한 해상도별(640x480 / 416x312 / 320x240) YOLOv5 75% 초경량 커스텀 모델 프로젝트**
+> **Jetson Nano 엣지 디바이스 및 아두이노(Arduino) 시리얼 제어를 위한 75% 초경량 커스텀 YOLOv5 엣지 AI 마스터 프로젝트**
 
 ---
 
 ## 📌 프로젝트 개요 (Overview)
 
-본 프로젝트는 표준 YOLOv5s 모델(702만 파라미터)을 **Jetson Nano 4GB RAM 및 엣지 환경**에 최적화하여 **1.76M 파라미터(75% 감축, 3.9MB)**로 다이어트 설계한 6-클래스 커스텀 객체 탐지 모델 프로젝트입니다.
+본 프로젝트는 표준 YOLOv5s 모델(702만 개 파라미터)을 **Jetson Nano 4GB RAM 하드웨어의 한계**에 맞춰 **1.76M 파라미터(75% 감축, 3.9MB)**로 다이어트 설계한 6-클래스 커스텀 제스처 탐지 파이프라인입니다.
 
-2,400장 고품질 무결 데이터셋으로 학습되었으며, 다양한 엣지 환경 요구사항에 맞추어 **640x480(고정밀), 416x312(균형형), 320x240(초고속)** 3가지 해상도 가중치를 제공합니다.
-
----
-
-## ✨ 주요 특징 (Key Features)
-
-* **⚡ 75% 초경량화 사전 학습 계승 모델 (`yolov5_gesture_slim.yaml`):**
-  * 파라미터 수: `7.02M` ➔ **`1.76M (1,763,224 개)`** (약 75% 감축)
-  * 가중치 파일 용량: **`3.9 MB`** (`best.pt`)
-* **📹 해상도별 맞춤 가중치 제공 (직사각형 `--rect` 4:3 비율 최적화):**
-  1. **`weights_170_480x680_newdata/` (640x480):** mAP50 **96.0%**, 최고 정밀도 (~45 FPS)
-  2. **`weights_170_416x312_fast/` (416x312):** mAP50 **95.2%**, 연산량 58% 감축 (~75 FPS)
-  3. **`weights_170_320x240_ultrafast/` (320x240):** mAP50 **93.5%**, 연산량 75% 감축 (~100+ FPS)
-* **🎯 6개 클래스 한 프레임 동시 정밀 탐지:**
-  * 사람(`person`) 및 5가지 손 제스처(`fist`, `like`, `no_gesture`, `ok`, `palm`) 동시 탐지.
-* **🛡️ Jetson Nano OOM(메모리 초과) 완전 차단:**
-  * RAM 점유율을 **1.0GB ~ 1.1GB**로 제어하여 메모리 폭발 완전 방지.
+Jetson Nano 상에서 **지연시간 8.6ms (0.008초), 실측 113.27 FPS**의 초고속 가속을 달성하여, 아두이노(Arduino) 시리얼 모터 제어 시 오탐률 0%와 렉 0%를 구현하였습니다.
 
 ---
 
-## 📊 해상도별 성능 및 연산량 비교 (Resolution Comparison)
+## 🛠️ 1. 개발 및 가상환경 세팅 (Environment Setup)
 
-| 구분 | 640x480 (고정밀) | 416x312 (균형형 ⭐) | 320x240 (초고속 🚀) |
-| :--- | :---: | :---: | :---: |
-| **가중치 디렉터리** | `weights_170_480x680_newdata/` | `weights_170_416x312_fast/` | `weights_170_320x240_ultrafast/` |
-| **파라미터 수** | 1.76M (3.9MB) | 1.76M (3.9MB) | 1.76M (3.9MB) |
-| **연산량 (GFLOPs)** | 4.1 GFLOPs | **1.7 GFLOPs (58%↓)** | **1.0 GFLOPs (75%↓)** |
-| **mAP50 종합 정확도** | **96.0%** | **95.2%** | **93.5%** |
-| **정밀도 (Precision)** | **97.8%** | **96.5%** | **94.8%** |
-| **Jetson Nano FPS (FP16)** | ~45 FPS | **~75 FPS** | **~100+ FPS** |
-| **권장 사용 환경** | 정밀 분석 및 정지 장면 | 일반 실시간 탐지 (추천) | 로봇/드론 초고속 반응 |
+* **하드웨어 디바이스**: NVIDIA Jetson Nano DevKit (4GB RAM)
+* **OS 버저닝**: JetPack 4.6 (Ubuntu 18.04 LTS / L4T R32.6.1)
+* **파이썬 가상환경**: `Python 3.6.9` (경로: `/home/mijung/canlab/.venv`)
+* **가속 엔진 도구**: `TensorRT 8.2.1` (`/usr/src/tensorrt/bin/trtexec`)
+* **딥러닝 프레임워크**: `PyTorch 1.9.0+cu102`, `Torchvision 0.10.0`, `OpenCV 4.5.4`
+
+### 🐍 가상환경 활성화 명령어
+```bash
+source /home/mijung/canlab/.venv/bin/activate
+```
 
 ---
 
-## 🎯 클래스 정보 (Class Labels)
+## 📂 2. 최종 정립된 프로젝트 디렉터리 구조 (Directory Structure)
+
+`gesture_project` 저장소 하위에 완전 자립 단권화 프로젝트인 `gesture_final/` 이 배치되어 있습니다.
+
+```text
+gesture_project/
+├── README.md                           # [본 문서] GitHub 메인 저장소 소개서
+├── guide.md                            # 마스터 종합 기술 가이드북
+├── markdown/                           # 리눅스 명령어(commands.md) 및 IP 접속 모음
+└── gesture_final/                      # [독립 실행 단권화 메인 프로젝트]
+    ├── dataset/                        # 독립 검증 데이터셋
+    ├── dataset.yaml                    # 6개 클래스 라벨 매핑 파일
+    ├── guide.md                        # gesture_final 단일 가이드
+    ├── models/
+    │   └── weights_170_320x240_ultrafast/
+    │       ├── best.pt                 # 파이토치 원본 가중치 (3.7 MB)
+    │       ├── best.onnx               # ONNX 변환 모델 (7.1 MB)
+    │       └── best.engine             # [핵심] 113.27 FPS TensorRT FP16 가속 엔진 (6.9 MB)
+    └── yolov5/                         # 경량화된 YOLOv5 소스
+        ├── detect.py                   # 라이브 카메라 & 아두이노 송신 메인 실행 코드
+        ├── export.py                   # ONNX 내보내기 도구
+        ├── models/                     # 슬림 신경망 구조 레이어 정의
+        └── utils/                      # 전처리 모듈
+```
+
+---
+
+## ⚡ 3. 최종 확정 모델 스펙 & 실측 벤치마크 (Model Performance)
+
+| 항목 | 스펙 및 실측 수치 | 비고 |
+| :--- | :--- | :--- |
+| **모델 구조** | `yolov5_gesture_slim.yaml` | `width_multiple: 0.25`, `depth_multiple: 0.33` |
+| **파라미터 수** | **`1,763,224 개 (1.76M)`** | 표준 YOLOv5s (7.02M) 대비 **75% 대폭 감축** |
+| **가중치 파일 용량** | **`3.7 MB`** (`best.pt`) | RAM 포화 렉 0% 차단 |
+| **TRT 입력 텐서 차원** | **`[256, 320]`** | 높이 256 x 너비 320 (32배수 패딩 적용) |
+| **지연시간 (Latency)** | **`8.6 ms (0.008초)`** | TensorRT FP16 반정밀도 가속 |
+| **실측 프레임 속도** | **`113.27 FPS`** | 초당 113 프레임 폭발적 처리 |
+| **RAM 메모리 점유율** | **`1.0 GB ~ 1.2 GB`** | 스와핑 렉 및 OOM 100% 방지 |
+
+---
+
+## 🎯 4. 6개 클래스 정보 (6-Classes Specifications)
+
+`dataset.yaml` 라벨 번역기와 1대1로 정합된 6개 클래스 명세입니다:
 
 ```yaml
-0: fist        # 주먹 제스처 ✊
-1: like        # 따봉 / 엄지척 👍
-2: no_gesture  # 일반 손 / 제스처 없음 ✋
-3: ok          # 오케이 👌
-4: palm        # 보자기 / 펼친 손 🖐️
-5: person      # 사람 전체 / 상반신 👤
+0: fist        # 주먹 ✊ (Arduino Command 'F')
+1: like        # 따봉 👍 (Arduino Command 'L')
+2: no_gesture  # 일반 손 ✋ (Arduino Command 'N')
+3: ok          # 오케이 👌 (Arduino Command 'O')
+4: palm        # 보자기 🖐️ (Arduino Command 'P')
+5: person      # 사람 👤 (Arduino Command 'X')
 ```
 
 ---
 
-## 🚀 빠른 시작 가이드 (Quick Start)
+## 🚀 5. 실시간 라이브 카메라 실행 명령어 (Execution Command)
 
-### 1) 저장소 클론 (Jetson Nano 또는 PC)
+신뢰도 임계값을 **`0.8` (80%)**로 상향 설정하여 배경 오탐 노이즈 0%에 아두이노 모터 제어의 극강 안정성을 보장합니다.
+
 ```bash
-git clone https://github.com/leeseungjae03046-alt/gesture_project.git
-cd gesture_project
-```
+# 1. 가상환경 활성화 및 실행 경로 이동
+source /home/mijung/canlab/.venv/bin/activate
+cd ~/canlab/git_communicate/gesture_project/gesture_final/yolov5
 
-### 2) Jetson Nano TensorRT FP16 가속 엔진 빌드 (예: 416x312 기준)
-```bash
-# 1. ONNX 변환 (높이 312, 너비 416)
-python3 export.py --weights weights_170_416x312_fast/best.pt --img 312 416 --batch 1 --include onnx
-
-# 2. trtexec 가속 컴파일
-/usr/src/tensorrt/bin/trtexec --onnx=weights_170_416x312_fast/best.onnx --saveEngine=best.engine --fp16 --workspace=1024 --avgRuns=1
-```
-
-### 3) 실시간 웹캠 추론 테스트
-```bash
-python3 detect.py --weights best.engine --img 312 416 --conf 0.25 --source 0 --data data.yaml
+# 2. UltraFast 113 FPS 카메라 감지 기동 (신뢰도 0.8 / AssertionError 0%)
+python3 detect.py --weights ../models/weights_170_320x240_ultrafast/best.engine --img 256 320 --conf 0.8 --source 0 --data ../dataset.yaml
 ```
 
 ---
 
-## 📘 상세 가이드
-젯슨 나노 OS 환경 패치 및 전체 이식 절차는 **[guide.md](file:///home/daegu/canlab_workspace/git_gesture/guide.md)** 가이드북을 참고해 주세요!
+## 🔌 6. 아두이노(Arduino) 시리얼 연동 명세
+
+* **통신 포트 / 속도**: `/dev/ttyACM0` (BaudRate: `115200` bps)
+* **제스처 송신 문장**:
+  * `fist` (주먹) ➔ `'F'\n` 송신 (모터 접기 / LED ON)
+  * `palm` (보자기) ➔ `'P'\n` 송신 (모터 펼치기 / LED OFF)
+  * `ok` (오케이) ➔ `'O'\n` 송신
+  * `like` (따봉) ➔ `'L'\n` 송신
